@@ -114,15 +114,14 @@ async def get_table_data(table_name: str):
 async def assignment1():
     query="""
         SELECT 
-            c.name AS customer_name,
-            c.email AS customer_email,
-            SUM(oi.quantity * oi.unit_price) AS total_spent
-        FROM customers c
-        JOIN orders o ON c.customer_id = o.customer_id
-        JOIN order_items oi ON o.order_id = oi.order_id
-        GROUP BY c.customer_id, c.name, c.email
-        ORDER BY total_spent DESC
-        LIMIT 10;
+        c.name AS customer_name,
+        c.email AS customer_email,
+        SUM(o.total_amount) AS total_spent
+    FROM customers c
+    JOIN orders o ON c.customer_id = o.customer_id
+    GROUP BY c.customer_id
+    ORDER BY total_spent DESC
+    LIMIT 10;
     """
 
     try:
@@ -152,8 +151,10 @@ async def assignment2():
         JOIN products p ON oi.product_id = p.product_id
         JOIN orders o ON oi.order_id = o.order_id
         GROUP BY p.category
-        ORDER BY total_revenue DESC;
+        ORDER BY total_revenue DESC
+        LIMIT 10;
     """
+
     try:
         with get_db_connection() as connection:
             if connection is None:
@@ -182,7 +183,8 @@ async def assignment3():
         LEFT JOIN orders o ON c.customer_id = o.customer_id
         LEFT JOIN order_items oi ON o.order_id = oi.order_id
         GROUP BY c.membership_level, c.city
-        ORDER BY total_orders DESC;
+        ORDER BY total_orders DESC
+        LIMIT 10;
     """
     try:
         with get_db_connection() as connection:
@@ -202,7 +204,18 @@ async def assignment3():
 async def assignment4():
     # Subquery
     query = """
-        
+    SELECT
+        p.name AS product_name,
+        p.category AS category,
+        SUM(oi.quantity * oi.unit_price) AS total_sales,
+        p.price AS category_avg,
+        ((SUM(oi.quantity * oi.unit_price) - p.price) / p.price) * 100 AS percent_above_avg
+    FROM order_items oi
+    JOIN products p ON oi.product_id = p.product_id
+    GROUP BY p.name, p.category, p.price
+    HAVING total_sales > p.price
+    ORDER BY percent_above_avg DESC
+    LIMIT 10;
     """
     
     try:
