@@ -113,7 +113,16 @@ async def get_table_data(table_name: str):
 @app.get("/assignment1")
 async def assignment1():
     query="""
-        
+        SELECT 
+            c.name AS customer_name,
+            c.email AS customer_email,
+            SUM(oi.quantity * oi.unit_price) AS total_spent
+        FROM customers c
+        JOIN orders o ON c.customer_id = o.customer_id
+        JOIN order_items oi ON o.order_id = oi.order_id
+        GROUP BY c.customer_id, c.name, c.email
+        ORDER BY total_spent DESC
+        LIMIT 10;
     """
 
     try:
@@ -133,14 +142,78 @@ async def assignment1():
 @app.get("/assignment2")
 async def assignment2():
     # GROUP BY query
-    return {"message": "Not implemented"}
+    query = """
+        SELECT 
+            p.category AS category_name,
+            COUNT(DISTINCT oi.order_id) AS total_orders,
+            SUM(oi.quantity * oi.unit_price) AS total_revenue,
+            SUM(oi.quantity * oi.unit_price) / COUNT(DISTINCT oi.order_id) AS avg_order_value
+        FROM order_items oi
+        JOIN products p ON oi.product_id = p.product_id
+        JOIN orders o ON oi.order_id = o.order_id
+        GROUP BY p.category
+        ORDER BY total_revenue DESC;
+    """
+    try:
+        with get_db_connection() as connection:
+            if connection is None:
+                return {"error": "Could not connect to database"}
+            
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return {"data": results}
+            
+    except Error as e:
+        return {"error": f"Database error: {str(e)}"}
 
 @app.get("/assignment3")
 async def assignment3():
     # Complex JOIN with GROUP BY
-    return {"message": "Not implemented"}
+    query = """
+        SELECT 
+            c.membership_level,
+            c.city,
+            COUNT(DISTINCT o.order_id) AS total_orders,
+            SUM(oi.quantity * oi.unit_price) / COUNT(DISTINCT o.order_id) AS avg_order_value,
+            COUNT(DISTINCT c.customer_id) AS num_customers,
+            COUNT(DISTINCT o.order_id) / COUNT(DISTINCT c.customer_id) AS orders_per_customer
+        FROM customers c
+        LEFT JOIN orders o ON c.customer_id = o.customer_id
+        LEFT JOIN order_items oi ON o.order_id = oi.order_id
+        GROUP BY c.membership_level, c.city
+        ORDER BY total_orders DESC;
+    """
+    try:
+        with get_db_connection() as connection:
+            if connection is None:
+                return {"error": "Could not connect to database"}
+            
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return {"data": results}
+            
+    except Error as e:
+        return {"error": f"Database error: {str(e)}"}
+
 
 @app.get("/assignment4")
 async def assignment4():
     # Subquery
-    return {"message": "Not implemented"} 
+    query = """
+        
+    """
+    
+    try:
+        with get_db_connection() as connection:
+            if connection is None:
+                return {"error": "Could not connect to database"}
+            
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return {"data": results}
+            
+    except Error as e:
+        return {"error": f"Database error: {str(e)}"}
