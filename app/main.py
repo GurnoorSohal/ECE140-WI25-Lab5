@@ -112,8 +112,23 @@ async def get_table_data(table_name: str):
 # Template routes for lab
 @app.get("/assignment1")
 async def assignment1():
-    # Basic JOIN query
-    return {"message": "Not implemented"}
+    query="""
+        
+    """
+
+    try:
+        with get_db_connection() as connection:
+            if connection is None:
+                return {"error": "Could not connect to database"}
+            
+            cursor = connection.cursor(dictionary=True)
+            cursor.execute(query)
+            results = cursor.fetchall()
+            return {"data": results}
+            
+    except Error as e:
+        return {"error": f"Database error: {str(e)}"}
+    
 
 @app.get("/assignment2")
 async def assignment2():
