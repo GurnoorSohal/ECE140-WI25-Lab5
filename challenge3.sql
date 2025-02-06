@@ -1,5 +1,5 @@
-CREATE DATABASE IF NOT EXISTS Challenge3;
-USE Challenge3;
+CREATE DATABASE IF NOT EXISTS challenge3;
+USE challenge3;
 
 DROP TABLE IF EXISTS courses;
 
